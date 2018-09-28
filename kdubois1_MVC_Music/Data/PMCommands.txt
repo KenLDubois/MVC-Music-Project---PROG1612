@@ -1,0 +1,9 @@
+﻿=======================================
+Awesome Quick Reference for PM Console!
+=======================================
+
+INITIAL CREATE DB:
+Add-Migration -Context kdubois1_MVC_MusicContext -o Data\MUMigrations
+
+UPDATE DB:
+Update-Database -Context kdubois1_MVC_MusicContext
