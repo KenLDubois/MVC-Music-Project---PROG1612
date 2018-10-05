@@ -35,6 +35,11 @@ namespace kdubois1_MVC_Music.Data
                 .HasIndex(m => m.SIN)
                 .IsUnique();
 
+            // Make sure Album Title + Year is Unique
+            modelBuilder.Entity<Album>()
+                .HasIndex(a => new { a.Name, a.YearProduced})
+                .IsUnique();
+
             //Many to many Intersection keys
             modelBuilder.Entity<Performance>()
                 .HasKey(p => new { p.SongID, p.MusicianID });

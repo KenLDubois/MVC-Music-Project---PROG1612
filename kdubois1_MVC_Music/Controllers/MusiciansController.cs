@@ -48,7 +48,8 @@ namespace kdubois1_MVC_Music.Controllers
         // GET: Musicians/Create
         public IActionResult Create()
         {
-            ViewData["InstrumentID"] = new SelectList(_context.Instruments, "ID", "Name");
+            PopulateInstrumentDropdown();
+
             return View();
         }
 
@@ -57,7 +58,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,FName,MName,LName,Phone,DOB,SIN,InstrumentID")] Musician musician)
+        public async Task<IActionResult> Create([Bind("ID,StageName,FName,MName,LName,Phone,DOB,SIN,InstrumentID")] Musician musician)
         {
             try
             {
@@ -81,7 +82,8 @@ namespace kdubois1_MVC_Music.Controllers
                 }
             }
 
-            ViewData["InstrumentID"] = new SelectList(_context.Instruments, "ID", "Name", musician.InstrumentID);
+            PopulateInstrumentDropdown(musician);
+
             return View(musician);
         }
 
@@ -98,7 +100,9 @@ namespace kdubois1_MVC_Music.Controllers
             {
                 return NotFound();
             }
-            ViewData["InstrumentID"] = new SelectList(_context.Instruments, "ID", "Name", musician.InstrumentID);
+
+            PopulateInstrumentDropdown(musician);
+
             return View(musician);
         }
 
@@ -107,7 +111,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,FName,MName,LName,Phone,DOB,SIN,InstrumentID")] Musician musician)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,StageName,FName,MName,LName,Phone,DOB,SIN,InstrumentID")] Musician musician)
         {
             if (id != musician.ID)
             {
@@ -146,7 +150,9 @@ namespace kdubois1_MVC_Music.Controllers
                 }
                 
             }
-            ViewData["InstrumentID"] = new SelectList(_context.Instruments, "ID", "Name", musician.InstrumentID);
+
+            PopulateInstrumentDropdown(musician);
+
             return View(musician);
         }
 
@@ -178,6 +184,13 @@ namespace kdubois1_MVC_Music.Controllers
             _context.Musicians.Remove(musician);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public void PopulateInstrumentDropdown(Musician musician = null)
+        {
+            var iQuery = new SelectList(_context.Instruments
+                .OrderBy(i => i.Name), "ID", "Name", musician?.InstrumentID);
+            ViewData["InstrumentID"] = iQuery;
         }
 
         private bool MusicianExists(int id)

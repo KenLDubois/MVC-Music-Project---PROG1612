@@ -40,6 +40,9 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
 
                     b.HasIndex("GenreID");
 
+                    b.HasIndex("Name", "YearProduced")
+                        .IsUnique();
+
                     b.ToTable("Albums");
                 });
 
@@ -99,6 +102,9 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                     b.Property<string>("SIN")
                         .IsRequired()
                         .HasMaxLength(9);
+
+                    b.Property<string>("StageName")
+                        .HasMaxLength(100);
 
                     b.HasKey("ID");
 
@@ -164,7 +170,7 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                     b.HasOne("kdubois1_MVC_Music.Models.Genre", "Genre")
                         .WithMany("Albums")
                         .HasForeignKey("GenreID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("kdubois1_MVC_Music.Models.Musician", b =>
@@ -193,7 +199,7 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                     b.HasOne("kdubois1_MVC_Music.Models.Instrument", "Instrument")
                         .WithMany("Plays")
                         .HasForeignKey("InstrumentID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("kdubois1_MVC_Music.Models.Musician", "Musicians")
                         .WithMany("Plays")
@@ -211,7 +217,7 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                     b.HasOne("kdubois1_MVC_Music.Models.Genre", "Genre")
                         .WithMany("Songs")
                         .HasForeignKey("GenreID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

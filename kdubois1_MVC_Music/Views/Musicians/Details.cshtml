@@ -10,23 +10,20 @@
     <h4>Musician</h4>
     <hr />
     <dl class="dl-horizontal">
+        @if (!string.IsNullOrEmpty(Model.StageName))
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.StageName)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.StageName)
+            </dd>
+        }
         <dt>
-            @Html.DisplayNameFor(model => model.FName)
+            @Html.DisplayNameFor(model => model.FullName)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.FName)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.MName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.MName)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.LName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.LName)
+            @Html.DisplayFor(model => model.FullName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Phone)

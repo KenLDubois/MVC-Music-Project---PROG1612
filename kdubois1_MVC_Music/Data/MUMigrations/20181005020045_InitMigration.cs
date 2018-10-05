@@ -60,7 +60,7 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                         principalSchema: "MU",
                         principalTable: "Genres",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,7 +76,8 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                     Phone = table.Column<long>(nullable: false),
                     DOB = table.Column<DateTime>(nullable: false),
                     SIN = table.Column<string>(maxLength: 9, nullable: false),
-                    InstrumentID = table.Column<int>(nullable: false)
+                    InstrumentID = table.Column<int>(nullable: false),
+                    StageName = table.Column<string>(maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -117,7 +118,7 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                         principalSchema: "MU",
                         principalTable: "Genres",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -137,7 +138,7 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                         principalSchema: "MU",
                         principalTable: "Instruments",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Plays_Musicians_MusicianID",
                         column: x => x.MusicianID,
@@ -179,6 +180,13 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                 schema: "MU",
                 table: "Albums",
                 column: "GenreID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Albums_Name_YearProduced",
+                schema: "MU",
+                table: "Albums",
+                columns: new[] { "Name", "YearProduced" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Musicians_InstrumentID",

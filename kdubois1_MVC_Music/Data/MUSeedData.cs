@@ -246,11 +246,12 @@ namespace kdubois1_MVC_Music.Data
                     context.Musicians.AddRange(
                         new Musician
                         {
-                            FName = "Ian", 
+                            StageName = "Aesop Rock",
+                            FName = "Ian",
                             MName = "Matthias",
                             LName = "Bavitz",
                             Phone = 5555555500,
-                            DOB = new DateTime(1976,07,05),
+                            DOB = new DateTime(1976, 07, 05),
                             SIN = "111111100",
                             InstrumentID = context.Instruments.FirstOrDefault(i => i.Name == "Vocals").ID
                         },
@@ -275,6 +276,7 @@ namespace kdubois1_MVC_Music.Data
                         },
                         new Musician
                         {
+                            StageName = "Carnage the Executioner",
                             FName = "Terrell", //Featured on Lotta Years
                             LName = "Woods",
                             Phone = 5555555503,
@@ -293,6 +295,7 @@ namespace kdubois1_MVC_Music.Data
                         },
                         new Musician
                         {
+                            StageName = "Bob Dylan",
                             FName = "Robert",
                             MName = "Allen",
                             LName = "Zimmerman",

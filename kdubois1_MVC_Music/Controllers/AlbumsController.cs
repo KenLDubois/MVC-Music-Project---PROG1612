@@ -48,7 +48,8 @@ namespace kdubois1_MVC_Music.Controllers
         // GET: Albums/Create
         public IActionResult Create()
         {
-            ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name");
+            //ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name");
+            PopulateGenreDropdown();
             return View();
         }
 
@@ -65,7 +66,8 @@ namespace kdubois1_MVC_Music.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", album.GenreID);
+            //ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", album.GenreID);
+            PopulateGenreDropdown(album);
             return View(album);
         }
 
@@ -82,7 +84,8 @@ namespace kdubois1_MVC_Music.Controllers
             {
                 return NotFound();
             }
-            ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", album.GenreID);
+            //ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", album.GenreID);
+            PopulateGenreDropdown(album);
             return View(album);
         }
 
@@ -118,7 +121,8 @@ namespace kdubois1_MVC_Music.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", album.GenreID);
+            //ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", album.GenreID);
+            PopulateGenreDropdown(album);
             return View(album);
         }
 
@@ -150,6 +154,13 @@ namespace kdubois1_MVC_Music.Controllers
             _context.Albums.Remove(album);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public void PopulateGenreDropdown(Album album = null)
+        {
+            var gQuery = new SelectList(_context.Genres
+                .OrderBy(g => g.Name),"ID","Name", album?.GenreID);
+            ViewData["GenreID"] = gQuery;
         }
 
         private bool AlbumExists(int id)

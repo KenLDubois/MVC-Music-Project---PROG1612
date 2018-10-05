@@ -50,18 +50,66 @@ namespace kdubois1_MVC_Music.Models
 
         [Required(ErrorMessage = "Please include an instrument")]
         [Display(Name = "Principal Instrument")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select an instrument.")]
         public int InstrumentID { get; set; }
+
+        [Display(Name = "Stage Name")]
+        [StringLength(100, ErrorMessage = "Stage Names must be less than 100 characters.")]
+        public string StageName { get; set; }
 
         public virtual Instrument Instrument { get; set; }
 
         public ICollection<Performance> Performances { get; set; }
         public ICollection<Plays> Plays { get; set; }
 
+        //Summary Properties
+        [Display(Name = "Formal Name")]
+        public string FormalName
+        {
+            get
+            {
+                return FName
+                    + (string.IsNullOrEmpty(MName) ? " " :
+                        (" " + (char?)MName[0] + ". ").ToUpper())
+                    + LName;
+            }
+        }
+
+        [Display(Name = "Full Name")]
+        public string FullName
+        {
+            get
+            {
+                return FName + (string.IsNullOrEmpty(MName) ? " " :
+                    (" " + MName + " ")) + LName;
+            }
+        }
+
+        [Display(Name = "Display Name")]
+        public string DisplayName
+        {
+            get
+            {
+                return (string.IsNullOrEmpty(StageName) ? FormalName : StageName);
+            }
+        }
+
+        public int Age { get
+            {
+                return DateTime.Now.Year - DOB.Year;
+            }
+        }
+
+        //IValidation
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if(DOB > DateTime.Today)
             {
                 yield return new ValidationResult("Date of Birth cannot be in the future", new[] { "DOB" });
+            }
+            if (DOB > DateTime.Today.AddYears(-5))
+            {
+                yield return new ValidationResult("Musicians must be older than 5. Sorry Mozart.", new[] { "DOB" });
             }
         }
     }

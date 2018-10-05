@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace kdubois1_MVC_Music.Models
+namespace kdubois1_MVC_Music.Models 
 {
-    public class Album
+    public class Album : IValidatableObject
     {
         public Album()
         {
@@ -33,9 +33,31 @@ namespace kdubois1_MVC_Music.Models
 
         [Required(ErrorMessage = "Please indicate the genre.")]
         [Display(Name = "Album Genre")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a genre.")]
         public int GenreID { get; set; }
 
         public virtual Genre Genre { get; set; }
         public virtual ICollection<Song> Songs { get; set; }
+
+        //Summary Properties
+        public string NameYear
+        {
+            get
+            {
+                return Name + YearProduced.ToString();
+            }
+        }
+
+
+
+        // Class level validation
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (DateTime.Now.AddYears(1).Year < YearProduced)
+            {
+                yield return new ValidationResult("Production Year cannot be more than 1 year in the future", new[] { "YearProduced" });
+            }
+            
+        }
     }
 }
