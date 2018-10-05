@@ -21,10 +21,12 @@ namespace kdubois1_MVC_Music.Models
 
         [Required(ErrorMessage = "Please select a genre.")]
         [Display(Name = "Song Genre")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a genre.")]
         public int GenreID { get; set; }
 
         [Required(ErrorMessage = "Please select an album.")]
         [Display(Name = "Album")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select an album.")]
         public int AlbumID { get; set; }
 
         public virtual Genre Genre { get; set; }

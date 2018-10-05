@@ -49,8 +49,8 @@ namespace kdubois1_MVC_Music.Controllers
         // GET: Songs/Create
         public IActionResult Create()
         {
-            ViewData["AlbumID"] = new SelectList(_context.Albums, "ID", "Name");
-            ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name");
+            PopulateAlbumDropdown();
+            PopulateGenreDropdown();
             return View();
         }
 
@@ -67,8 +67,8 @@ namespace kdubois1_MVC_Music.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AlbumID"] = new SelectList(_context.Albums, "ID", "Name", song.AlbumID);
-            ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", song.GenreID);
+            PopulateAlbumDropdown(song);
+            PopulateGenreDropdown(song);
             return View(song);
         }
 
@@ -85,8 +85,8 @@ namespace kdubois1_MVC_Music.Controllers
             {
                 return NotFound();
             }
-            ViewData["AlbumID"] = new SelectList(_context.Albums, "ID", "Name", song.AlbumID);
-            ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", song.GenreID);
+            PopulateAlbumDropdown(song);
+            PopulateGenreDropdown(song);
             return View(song);
         }
 
@@ -122,8 +122,8 @@ namespace kdubois1_MVC_Music.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AlbumID"] = new SelectList(_context.Albums, "ID", "Name", song.AlbumID);
-            ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", song.GenreID);
+            PopulateAlbumDropdown(song);
+            PopulateGenreDropdown(song);
             return View(song);
         }
 
@@ -156,6 +156,20 @@ namespace kdubois1_MVC_Music.Controllers
             _context.Songs.Remove(song);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public void PopulateGenreDropdown(Song song = null)
+        {
+            var gQuery = new SelectList(_context.Genres
+                .OrderBy(g => g.Name), "ID", "Name", song?.GenreID);
+            ViewData["GenreID"] = gQuery;
+        }
+
+        public void PopulateAlbumDropdown(Song song = null)
+        {
+            var aQuery = new SelectList(_context.Albums
+                .OrderBy(a => a.Name), "ID", "Name", song?.AlbumID);
+            ViewData["AlbumID"] = aQuery;
         }
 
         private bool SongExists(int id)
