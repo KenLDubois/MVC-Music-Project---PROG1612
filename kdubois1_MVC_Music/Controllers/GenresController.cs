@@ -140,9 +140,33 @@ namespace kdubois1_MVC_Music.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var genre = await _context.Genres.FindAsync(id);
-            _context.Genres.Remove(genre);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            try
+            {
+                _context.Genres.Remove(genre);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException.Message.Contains("FK_Songs_Genres_GenreID"))
+                {
+                    ModelState.AddModelError("", "You cannot delete a genre that has songs associated with it.");
+                }
+
+                else if (ex.InnerException.Message.Contains("FK_Albums_Genres_GenreID"))
+                {
+                    ModelState.AddModelError("", "You cannot delete a genre that has an album associated with it.");
+                }
+
+                else
+                {
+                    throw; 
+                }
+
+                return View(genre);
+            }
         }
 
         private bool GenreExists(int id)

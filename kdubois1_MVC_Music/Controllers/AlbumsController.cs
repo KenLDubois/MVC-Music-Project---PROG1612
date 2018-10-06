@@ -60,13 +60,28 @@ namespace kdubois1_MVC_Music.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,YearProduced,Price,GenreID")] Album album)
         {
-            if (ModelState.IsValid)
+            try
+            {
+                if (ModelState.IsValid)
             {
                 _context.Add(album);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", album.GenreID);
+            }
+            catch (Exception ex)
+            {
+
+                if (ex.InnerException.Message.Contains("IX_Albums_Name_YearProduced"))
+                {
+                    ModelState.AddModelError("YearProduced", "An album called " + album.Name + " already exists from " + album.YearProduced.ToString());
+                }
+                else
+                {
+                    ModelState.AddModelError("", ex.Message.ToString());
+                }
+            }
+
             PopulateGenreDropdown(album);
             return View(album);
         }
@@ -84,7 +99,7 @@ namespace kdubois1_MVC_Music.Controllers
             {
                 return NotFound();
             }
-            //ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", album.GenreID);
+
             PopulateGenreDropdown(album);
             return View(album);
         }
@@ -94,23 +109,26 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,YearProduced,Price,GenreID")] Album album)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id != album.ID)
+            var albumToUpdate = await _context.Albums.SingleOrDefaultAsync(a => a.ID == id);
+
+            if(albumToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if(await TryUpdateModelAsync<Album>(albumToUpdate,"",
+                a => a.Name, a => a.YearProduced, a => a.Price, a => a.GenreID))
             {
                 try
                 {
-                    _context.Update(album);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch(DbUpdateConcurrencyException)
                 {
-                    if (!AlbumExists(album.ID))
+                    if (!AlbumExists(albumToUpdate.ID))
                     {
                         return NotFound();
                     }
@@ -119,11 +137,21 @@ namespace kdubois1_MVC_Music.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch(DbUpdateException dex)
+                {
+                    if (dex.InnerException.Message.Contains("IX_Albums_Name_YearProduced"))
+                    {
+                        ModelState.AddModelError("YearProduced", "An album called " + albumToUpdate.Name + " already exists from " + albumToUpdate.YearProduced.ToString());
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", dex.Message.ToString());
+                    }
+                }
             }
-            //ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name", album.GenreID);
-            PopulateGenreDropdown(album);
-            return View(album);
+
+            PopulateGenreDropdown(albumToUpdate);
+            return View(albumToUpdate);
         }
 
         // GET: Albums/Delete/5
@@ -150,10 +178,31 @@ namespace kdubois1_MVC_Music.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+
             var album = await _context.Albums.FindAsync(id);
-            _context.Albums.Remove(album);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            try
+            {
+                _context.Albums.Remove(album);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+
+                if (ex.InnerException.Message.Contains("FK_Songs_Albums_AlbumID"))
+                {
+
+                    ModelState.AddModelError("", "You cannot remove an album that contains songs.");
+                }
+                else
+                {
+                    ModelState.AddModelError("", ex.Message.ToString());
+                }
+
+                return View(album);
+            }
+            
         }
 
         public void PopulateGenreDropdown(Album album = null)

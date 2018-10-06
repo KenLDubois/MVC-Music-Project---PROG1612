@@ -10,16 +10,17 @@
 <div>
     <h4>Musician</h4>
     <hr />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <dl class="dl-horizontal">
         @if (!string.IsNullOrEmpty(Model.StageName))
-            {
-                <dt>
-                    @Html.DisplayNameFor(model => model.StageName)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.StageName)
-                </dd>
-            }
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.StageName)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.StageName)
+            </dd>
+        }
         <dt>
             @Html.DisplayNameFor(model => model.FullName)
         </dt>
@@ -51,7 +52,7 @@
             @Html.DisplayFor(model => model.Instrument.Name)
         </dd>
     </dl>
-    
+
     <form asp-action="Delete">
         <input type="hidden" asp-for="ID" />
         <input type="submit" value="Delete" class="btn btn-default" /> |

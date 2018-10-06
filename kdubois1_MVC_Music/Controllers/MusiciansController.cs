@@ -111,24 +111,26 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,StageName,FName,MName,LName,Phone,DOB,SIN,InstrumentID")] Musician musician)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id != musician.ID)
+             var musicianToUpdate = await _context.Musicians.SingleOrDefaultAsync(m => m.ID == id);
+
+            if (musicianToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (await TryUpdateModelAsync<Musician>(musicianToUpdate, "",
+               m => m.StageName,m => m.FName, m => m.MName, m => m.LName, m => m.Phone, m => m.DOB, m => m.SIN, m => m.InstrumentID))
             {
                 try
                 {
-                    _context.Update(musician);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MusicianExists(musician.ID))
+                    if (!MusicianExists(musicianToUpdate.ID))
                     {
                         return NotFound();
                     }
@@ -141,19 +143,17 @@ namespace kdubois1_MVC_Music.Controllers
                 {
                     if (dex.InnerException.Message.Contains("IX_Musicians_SIN"))
                     {
-                        ModelState.AddModelError("SIN", "Please ensure SIN numbers are unique");
+                        ModelState.AddModelError("SIN", "SIN numbers must be unique.");
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Unable to save changes. Please try again later.");
+                        ModelState.AddModelError("", dex.Message.ToString());
                     }
                 }
-                
             }
-
-            PopulateInstrumentDropdown(musician);
-
-            return View(musician);
+            //Validaiton Error so give the user another chance.
+            PopulateInstrumentDropdown(musicianToUpdate);
+            return View(musicianToUpdate);
         }
 
         // GET: Musicians/Delete/5
@@ -181,9 +181,29 @@ namespace kdubois1_MVC_Music.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var musician = await _context.Musicians.FindAsync(id);
-            _context.Musicians.Remove(musician);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            try
+            {
+                _context.Musicians.Remove(musician);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+
+                if (ex.InnerException.Message.Contains("FK_Performances_Musicians_MusicianID"))
+                {
+                    ModelState.AddModelError("", "You cannot delete a musician before deleting their performances");
+                }
+                else
+                {
+                    ModelState.AddModelError("",ex.Message.ToString());
+                }
+
+                return View(musician);
+            }
+
+
         }
 
         public void PopulateInstrumentDropdown(Musician musician = null)
