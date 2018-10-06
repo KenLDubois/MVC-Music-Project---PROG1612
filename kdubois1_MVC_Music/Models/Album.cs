@@ -40,15 +40,14 @@ namespace kdubois1_MVC_Music.Models
         public virtual ICollection<Song> Songs { get; set; }
 
         //Summary Properties
+        [Display(Name = "Album")]
         public string NameYear
         {
             get
             {
-                return Name + YearProduced.ToString();
+                return Name + " (" + YearProduced.ToString() + ")";
             }
         }
-
-
 
         // Class level validation
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
