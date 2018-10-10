@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using kdubois1_MVC_Music.Data;
 using kdubois1_MVC_Music.Models;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace kdubois1_MVC_Music.Controllers
 {
@@ -14,9 +17,12 @@ namespace kdubois1_MVC_Music.Controllers
     {
         private readonly kdubois1_MVC_MusicContext _context;
 
-        public MusiciansController(kdubois1_MVC_MusicContext context)
+        private readonly IHostingEnvironment he;
+ 
+        public MusiciansController(kdubois1_MVC_MusicContext context, IHostingEnvironment e)
         {
             _context = context;
+            he = e;
         }
 
         // GET: Musicians
@@ -111,7 +117,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, IFormFile imageFile)
         {
              var musicianToUpdate = await _context.Musicians.SingleOrDefaultAsync(m => m.ID == id);
 
@@ -120,12 +126,18 @@ namespace kdubois1_MVC_Music.Controllers
                 return NotFound();
             }
 
+            var relPath = "images\\profilePics\\" + Path.GetFileName(imageFile.FileName);
+            var fullPath = Path.Combine(he.WebRootPath, relPath);
+
+            musicianToUpdate.ProfilePicPath = relPath.ToString();
+
             if (await TryUpdateModelAsync<Musician>(musicianToUpdate, "",
-               m => m.StageName,m => m.FName, m => m.MName, m => m.LName, m => m.Phone, m => m.DOB, m => m.SIN, m => m.InstrumentID))
+               m => m.StageName,m => m.FName, m => m.MName, m => m.LName, m => m.Phone, m => m.DOB, m => m.SIN, m => m.InstrumentID, m => m.ProfilePicPath))
             {
                 try
                 {
                     await _context.SaveChangesAsync();
+                    imageFile.CopyTo(new FileStream(fullPath, FileMode.Create));
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -202,8 +214,6 @@ namespace kdubois1_MVC_Music.Controllers
 
                 return View(musician);
             }
-
-
         }
 
         public void PopulateInstrumentDropdown(Musician musician = null)

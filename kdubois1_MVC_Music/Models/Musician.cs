@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -56,6 +57,20 @@ namespace kdubois1_MVC_Music.Models
         [Display(Name = "Stage Name")]
         [StringLength(100, ErrorMessage = "Stage Names must be less than 100 characters.")]
         public string StageName { get; set; }
+
+        public string ProfilePicPath { get; set; }
+
+        public string profilePicPath { get
+            {
+                if (!string.IsNullOrEmpty(ProfilePicPath))
+                {
+                    return ProfilePicPath;
+                }
+                else
+                {
+                    return "http://placehold.it/150x150";
+                }
+            } }
 
         public virtual Instrument Instrument { get; set; }
 
