@@ -9,39 +9,80 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DisplayName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Age)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Instrument)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DisplayName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Age)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Instrument.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+<form asp-action="Index">
+    <div class="form-horizontal">
+        <div class="row well">
+            <div class="form-group col-md-5">
+                <label class="control-label col-md-6">Select by Instrument: </label>
+                <div class="col-md-6">
+                    @Html.DropDownList("InstrumentID", null, "All Instruments", htmlAttributes: new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group col-md-5">
+                <label class="control-label col-md-7">Search Musician Name: </label>
+                <div class="col-md-5">
+                    @Html.TextBox("SearchString", null, new { @class = "form-control" })
+                </div>
+            </div>
+            <input type="hidden" name="SortDirection" value="@ViewData["SortDirection"]" />
+            <input type="hidden" name="SortField" value="@ViewData["SortField"]" />
+            <div class="form-group col-md-2">
+                <input type="submit" name="ActionButton" value="Filter" class="btn btn-primary" />&nbsp
+                <a asp-action="Index" class="btn btn-default">Clear</a>
+            </div>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <button type="submit" name="ActionButton" value="DisplayName" class="btn btn-link">
+                        <strong>@Html.DisplayNameFor(model => model.DisplayName)</strong>
+                    </button>
+                </th>
+                <th>
+                    <button type="submit" name="ActionButton" value="Age" class="btn btn-link">
+                        <strong>@Html.DisplayNameFor(model => model.Age)</strong>
+                    </button>
+                </th>
+                <th>
+                    <button type="submit" name="ActionButton" value="Phone" class="btn btn-link">
+                        <strong>@Html.DisplayNameFor(model => model.Phone)</strong>
+                    </button>
+                </th>
+                <th>
+                    <button type="submit" name="ActionButton" value="Instrument" class="btn btn-link">
+                        <strong>@Html.DisplayNameFor(model => model.Instrument)</strong>
+                    </button>
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DisplayName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Age)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Phone)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Instrument.Name)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
