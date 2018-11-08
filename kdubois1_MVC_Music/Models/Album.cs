@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace kdubois1_MVC_Music.Models 
 {
-    public class Album : IValidatableObject
+    public class Album : Auditable, IValidatableObject
     {
         public Album()
         {

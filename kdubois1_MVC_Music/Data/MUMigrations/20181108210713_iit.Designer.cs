@@ -10,15 +10,15 @@ using kdubois1_MVC_Music.Data;
 namespace kdubois1_MVC_Music.Data.MUMigrations
 {
     [DbContext(typeof(kdubois1_MVC_MusicContext))]
-    [Migration("20181005020045_InitMigration")]
-    partial class InitMigration
+    [Migration("20181108210713_iit")]
+    partial class iit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("MU")
-                .HasAnnotation("ProductVersion", "2.1.3-rtm-32065")
+                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -28,6 +28,11 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256);
+
+                    b.Property<DateTime?>("CreatedOn");
+
                     b.Property<int>("GenreID");
 
                     b.Property<string>("Name")
@@ -35,6 +40,15 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                         .HasMaxLength(50);
 
                     b.Property<decimal>("Price");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256);
+
+                    b.Property<DateTime?>("UpdatedOn");
 
                     b.Property<int>("YearProduced");
 
@@ -84,6 +98,11 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(256);
+
+                    b.Property<DateTime?>("CreatedOn");
+
                     b.Property<DateTime>("DOB");
 
                     b.Property<string>("FName")
@@ -101,12 +120,21 @@ namespace kdubois1_MVC_Music.Data.MUMigrations
 
                     b.Property<long>("Phone");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
                     b.Property<string>("SIN")
                         .IsRequired()
                         .HasMaxLength(9);
 
                     b.Property<string>("StageName")
                         .HasMaxLength(100);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(256);
+
+                    b.Property<DateTime?>("UpdatedOn");
 
                     b.HasKey("ID");
 

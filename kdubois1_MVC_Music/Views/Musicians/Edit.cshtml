@@ -8,11 +8,17 @@
 
 <h4>Musician</h4>
 <hr />
+
+@{ var CreateInstrumentModalData = new kdubois1_MVC_Music.Models.Instrument();
+    <partial name="_InstrumentCreateModal" model="CreateInstrumentModalData" />
+}
+
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ID" />
+            <input type="hidden" asp-for="RowVersion" />
             <div class="form-group">
                 <label asp-for="StageName" class="control-label"></label>
                 <input asp-for="StageName" class="form-control" />
@@ -48,9 +54,15 @@
                 <input asp-for="SIN" class="form-control" />
                 <span asp-validation-for="SIN" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="InstrumentID" class="control-label"></label>
-                <select asp-for="InstrumentID" class="form-control" asp-items="ViewBag.InstrumentID"></select>
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="nowAddInstrument" data-toggle="modal" data-target="#addInstrumentModal" type="button"><span class="glyphicon glyphicon-plus" /></button>
+                    </div>
+                    <select asp-for="InstrumentID" class="form-control" asp-items="ViewBag.InstrumentID"></select>
+                </div>
                 <span asp-validation-for="InstrumentID" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -77,19 +89,49 @@
                                         @instrument.InstrumentName @:&nbsp;&nbsp;
                                     @:</td>
                                 }
-                            @:</tr>
                             }
-                        </table>
-                    </div>
+                        </tr>
+                    </table>
                 </div>
-                <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-default" />
-                </div>
-            </form>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
     </div>
 </div>
 
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/refreshDDL.js"></script>
+        <script type="text/javascript">
+            $('#submitCreate').click(function (event) {
+                event.preventDefault();
+                var form = $('#createInstrumentForm');
+                if (form.valid()) {
+                    $.ajax({
+                        type: "POST",
+                        url: form.attr('action'),
+                        data: form.serialize(),
+                        success: function () {
+                            $('#addInstrumentModal').modal('hide');
+                        },
+                        error: function () {
+                            alert("Create Failed.  There was a problem adding the record.");
+                        }
+                    });
+                }
+                return false;
+            });
+            $('#addInstrumentModal').on('hide.bs.modal', function () {
+                $('#createInstrumentForm').find("input[type=text], textarea, select").val("");//to clear the data in the popup
+                refreshDDL('InstrumentID', 'Musicians/GetInstruments', false, '');
+            });
+        </script>
+    }
+}
 

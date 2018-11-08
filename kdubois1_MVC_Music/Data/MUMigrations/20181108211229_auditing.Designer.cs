@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using kdubois1_MVC_Music.Data;
 
 namespace kdubois1_MVC_Music.Data.MUMigrations
 {
     [DbContext(typeof(kdubois1_MVC_MusicContext))]
-    partial class kdubois1_MVC_MusicContextModelSnapshot : ModelSnapshot
+    [Migration("20181108211229_auditing")]
+    partial class auditing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

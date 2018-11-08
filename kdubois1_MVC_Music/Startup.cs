@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using kdubois1_MVC_Music.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace kdubois1_MVC_Music
 {
@@ -41,6 +42,9 @@ namespace kdubois1_MVC_Music
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            //To give access to IHttpContextAccessor for Audit Data with IAuditable
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddDbContext<kdubois1_MVC_MusicContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("kdubois1_MVC_MusicContext")));

@@ -4,14 +4,34 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using kdubois1_MVC_Music.Models;
+using Microsoft.AspNetCore.Http;
+using System.Threading;
 
 namespace kdubois1_MVC_Music.Data
 {
     public class kdubois1_MVC_MusicContext : DbContext
     {
+        //To give access to IHttpContextAccessor for Audit Data with IAuditable
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        //Property to hold the UserName value
+        public string UserName
+        {
+            get; private set;
+        }
+
         public kdubois1_MVC_MusicContext (DbContextOptions<kdubois1_MVC_MusicContext> options)
             : base(options)
         {
+            UserName = "SeedData";
+        }
+
+        public kdubois1_MVC_MusicContext(DbContextOptions<kdubois1_MVC_MusicContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            UserName = _httpContextAccessor.HttpContext?.User.Identity.Name;
+            //UserName = (UserName == null) ? "Unknown" : UserName;
+            UserName = UserName ?? "Unknown";
         }
 
         // Add properties for DB sets of:
@@ -22,13 +42,13 @@ namespace kdubois1_MVC_Music.Data
         public DbSet<Musician> Musicians { get; set; }
         public DbSet<Performance> Performances { get; set; }
         public DbSet<Plays> Plays { get; set; }
-        
+
         // TODO: Add remaing DB sets
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Add custom schema for music DB
-            modelBuilder.HasDefaultSchema("MU");      
+            modelBuilder.HasDefaultSchema("MU");
 
             // Make sure SIN number is unique
             modelBuilder.Entity<Musician>()
@@ -37,7 +57,7 @@ namespace kdubois1_MVC_Music.Data
 
             // Make sure Album Title + Year is Unique
             modelBuilder.Entity<Album>()
-                .HasIndex(a => new { a.Name, a.YearProduced})
+                .HasIndex(a => new { a.Name, a.YearProduced })
                 .IsUnique();
 
             //Many to many Intersection keys
@@ -82,11 +102,50 @@ namespace kdubois1_MVC_Music.Data
                 .WithOne(s => s.Album)
                 .HasForeignKey(s => s.AlbumID)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             //NOTE: 
             //Musician cascade to Plays
             //Song cascades to Performances
 
         }
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            OnBeforeSaving();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            OnBeforeSaving();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void OnBeforeSaving()
+        {
+            var entries = ChangeTracker.Entries();
+            foreach (var entry in entries)
+            {
+                if (entry.Entity is IAuditable trackable)
+                {
+                    var now = DateTime.UtcNow;
+                    switch (entry.State)
+                    {
+                        case EntityState.Modified:
+                            trackable.UpdatedOn = now;
+                            trackable.UpdatedBy = UserName;
+                            break;
+
+                        case EntityState.Added:
+                            trackable.CreatedOn = now;
+                            trackable.CreatedBy = UserName;
+                            trackable.UpdatedOn = now;
+                            trackable.UpdatedBy = UserName;
+                            break;
+                    }
+                }
+            }
+        }
+
     }
 }

@@ -109,7 +109,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
             var albumToUpdate = await _context.Albums.SingleOrDefaultAsync(a => a.ID == id);
 
@@ -123,19 +123,49 @@ namespace kdubois1_MVC_Music.Controllers
             {
                 try
                 {
+                    _context.Entry(albumToUpdate).Property("RowVersion").OriginalValue = RowVersion;
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
-                catch(DbUpdateConcurrencyException)
+                catch(DbUpdateConcurrencyException ex)
                 {
-                    if (!AlbumExists(albumToUpdate.ID))
+
+                    var exceptionEntry = ex.Entries.Single();
+                    var clientValues = (Album)exceptionEntry.Entity;
+                    var databaseEntry = exceptionEntry.GetDatabaseValues();
+                   
+                    if (databaseEntry == null)
                     {
-                        return NotFound();
+                        ModelState.AddModelError("",
+                            "Unable to save changes. The Album was deleted by another user.");
                     }
                     else
                     {
-                        throw;
+                        var databaseValues = (Album)databaseEntry.ToObject();
+                        if (databaseValues.Name != clientValues.Name)
+                        {
+                            ModelState.AddModelError("Name", "Current value: " + databaseValues.Name);
+                        }
+                        if(databaseValues.YearProduced != clientValues.YearProduced)
+                        {
+                            ModelState.AddModelError("YearProduced", "Current value:" + databaseValues.YearProduced);
+                        }
+                        //Price
+                        if (databaseValues.Price != clientValues.Price)
+                        {
+                            ModelState.AddModelError("Price", "Current value:" + databaseValues.Price);
+                        }
+                        //GenreID
+                        if (databaseValues.GenreID != clientValues.GenreID)
+                        {
+                            Genre databaseGenre = await _context.Genres.SingleOrDefaultAsync(i => i.ID == databaseValues.GenreID);
+                            ModelState.AddModelError("GenreID", $"Current value: {databaseGenre?.Name}");
+                        }
+
+                        ModelState.AddModelError(string.Empty, "The record you are trying to edit" +
+                           "has been modified by another user. Please review the changes and try again.");
                     }
+
                 }
                 catch(DbUpdateException dex)
                 {

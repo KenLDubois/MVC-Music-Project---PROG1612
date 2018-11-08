@@ -215,7 +215,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, string[] selectedInstruments)
+        public async Task<IActionResult> Edit(int id, string[] selectedInstruments, Byte[] RowVersion)
         {
              var musicianToUpdate = await _context.Musicians
                 .Include(m => m.Instrument)
@@ -234,18 +234,66 @@ namespace kdubois1_MVC_Music.Controllers
             {
                 try
                 {
+                    _context.Entry(musicianToUpdate).Property("RowVersion").OriginalValue = RowVersion;
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
-                    if (!MusicianExists(musicianToUpdate.ID))
+
+                    //if (!MusicianExists(musicianToUpdate.ID))
+                    //{
+                    //    return NotFound();
+                    //}
+
+                    var exceptionEntry = ex.Entries.Single();
+                    var clientValues = (Musician)exceptionEntry.Entity;
+                    var databaseEntry = exceptionEntry.GetDatabaseValues();
+                    if(databaseEntry == null)
                     {
-                        return NotFound();
+                        ModelState.AddModelError("",
+                            "Unable to save changes. The Musician was deleted by another user.");
                     }
                     else
                     {
-                        throw;
+                        var databaseValues = (Musician)databaseEntry.ToObject();
+                        if(databaseValues.FName != clientValues.FName)
+                        {
+                            ModelState.AddModelError("FName", "Current value: " + databaseValues.FName);
+                        }
+                        if (databaseValues.MName != clientValues.MName)
+                        {
+                            ModelState.AddModelError("MName", "Current value: " + databaseValues.MName);
+                        }
+                        if (databaseValues.LName != clientValues.LName)
+                        {
+                            ModelState.AddModelError("LName", "Current value: " + databaseValues.LName);
+                        }
+                        if (databaseValues.Phone != clientValues.Phone)
+                        {
+                            ModelState.AddModelError("Phone", "Current value: " + databaseValues.Phone);
+                        }
+                        if (databaseValues.DOB != clientValues.DOB)
+                        {
+                            ModelState.AddModelError("DOB", "Current value: " + databaseValues.DOB);
+                        }
+                        if (databaseValues.SIN != clientValues.SIN)
+                        {
+                            ModelState.AddModelError("SIN", "Current value: " + databaseValues.SIN);
+                        }
+                        if(databaseValues.InstrumentID != clientValues.InstrumentID)
+                        {
+                            Instrument databaseInstrument = await _context.Instruments.SingleOrDefaultAsync(i => i.ID == databaseValues.InstrumentID);
+                            ModelState.AddModelError("InstrumentID", $"Current value: {databaseInstrument?.Name}");
+                        }
+                        if (databaseValues.StageName != clientValues.StageName)
+                        {
+                            ModelState.AddModelError("StageName", "Current value: " + databaseValues.StageName);
+                        }
+
+                        ModelState.AddModelError(string.Empty, "The record you are trying to edit" +
+                            "has been modified by another user. Please review the changes and try again.");
+
                     }
                 }
                 catch (DbUpdateException dex)
@@ -316,11 +364,30 @@ namespace kdubois1_MVC_Music.Controllers
 
         }
 
+        //public void PopulateInstrumentDropdown(Musician musician = null)
+        //{
+        //    var iQuery = new SelectList(_context.Instruments
+        //        .OrderBy(i => i.Name), "ID", "Name", musician?.InstrumentID);
+        //    ViewData["InstrumentID"] = iQuery;
+        //}
+
+        private SelectList InstrumentSelectList(int? id)
+        {
+            var iQuery = from i in _context.Instruments
+                         orderby i.Name
+                         select i;
+            return new SelectList(iQuery, "ID", "Name", id);
+        }
+
         public void PopulateInstrumentDropdown(Musician musician = null)
         {
-            var iQuery = new SelectList(_context.Instruments
-                .OrderBy(i => i.Name), "ID", "Name", musician?.InstrumentID);
-            ViewData["InstrumentID"] = iQuery;
+            ViewData["InstrumentID"] = InstrumentSelectList(musician?.InstrumentID);
+        }
+
+        [HttpGet]
+        public JsonResult GetInstruments(int? id)
+        {
+            return Json(InstrumentSelectList(id));
         }
 
         private void PopulateAssignedInstrumentData(Musician musician)
