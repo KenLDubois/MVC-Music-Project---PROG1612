@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using kdubois1_MVC_Music.Data;
 using kdubois1_MVC_Music.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace kdubois1_MVC_Music.Controllers
 {
+    [Authorize(Roles = "Supervisor, Admin")]
     public class GenresController : Controller
     {
         private readonly kdubois1_MVC_MusicContext _context;
@@ -117,6 +119,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Genres/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -137,6 +140,7 @@ namespace kdubois1_MVC_Music.Controllers
         // POST: Genres/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var genre = await _context.Genres.FindAsync(id);

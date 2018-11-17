@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using kdubois1_MVC_Music.Data;
 using kdubois1_MVC_Music.Models;
 using kdubois1_MVC_Music.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace kdubois1_MVC_Music.Controllers
 {
+    [Authorize]
     public class MusiciansController : Controller
     {
         private readonly kdubois1_MVC_MusicContext _context;
@@ -111,6 +113,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Musicians/Details/5
+        [Authorize(Roles = "Staff, Supervisor, Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -131,6 +134,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Musicians/Create
+        [Authorize(Roles = "Staff, Supervisor, Admin")]
         public IActionResult Create()
         {
             var musician = new Musician();
@@ -145,6 +149,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Staff, Supervisor, Admin")]
         public async Task<IActionResult> Create([Bind("ID,StageName,FName,MName,LName,Phone,DOB,SIN,InstrumentID")] Musician musician, string[] selectedInstruments)
         {
             try
@@ -187,6 +192,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Musicians/Edit/5
+        [Authorize(Roles = "Staff, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -215,6 +221,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Staff, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id, string[] selectedInstruments, Byte[] RowVersion)
         {
              var musicianToUpdate = await _context.Musicians
@@ -315,6 +322,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Musicians/Delete/5
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -336,6 +344,7 @@ namespace kdubois1_MVC_Music.Controllers
         // POST: Musicians/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var musician = await _context.Musicians.FindAsync(id);

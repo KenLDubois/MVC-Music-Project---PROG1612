@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using kdubois1_MVC_Music.Data;
 using kdubois1_MVC_Music.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace kdubois1_MVC_Music.Controllers
 {
+    [Authorize(Roles = "Staff, Supervisor, Admin")]
     public class AlbumsController : Controller
     {
         private readonly kdubois1_MVC_MusicContext _context;
@@ -46,6 +48,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Albums/Create
+        [Authorize(Roles = "Supervisor, Admin")]
         public IActionResult Create()
         {
             //ViewData["GenreID"] = new SelectList(_context.Genres, "ID", "Name");
@@ -58,6 +61,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Create([Bind("ID,Name,YearProduced,Price,GenreID")] Album album)
         {
             try
@@ -87,6 +91,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Albums/Edit/5
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -109,6 +114,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id, Byte[] RowVersion)
         {
             var albumToUpdate = await _context.Albums.SingleOrDefaultAsync(a => a.ID == id);
@@ -185,6 +191,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Albums/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -206,6 +213,7 @@ namespace kdubois1_MVC_Music.Controllers
         // POST: Albums/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
 

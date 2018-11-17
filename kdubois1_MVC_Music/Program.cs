@@ -30,6 +30,9 @@ namespace kdubois1_MVC_Music
                     var context = services.GetRequiredService<kdubois1_MVC_MusicContext>();
                     context.Database.Migrate();
                     MUSeedData.Initialize(services);
+
+                    var identityContext = services.GetRequiredService<ApplicationDbContext>();
+                    ApplicationSeedData.SeedAsync(identityContext, services).Wait();
                 }
                 catch (Exception ex)
                 {

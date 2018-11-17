@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using kdubois1_MVC_Music.Data;
 using kdubois1_MVC_Music.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace kdubois1_MVC_Music.Controllers
 {
+    [Authorize]
     public class SongsController : Controller
     {
         private readonly kdubois1_MVC_MusicContext _context;
@@ -73,6 +75,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Songs/Edit/5
+        [Authorize(Roles = "Staff, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -95,6 +98,7 @@ namespace kdubois1_MVC_Music.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Staff, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Title,GenreID,AlbumID")] Song song)
         {
             if (id != song.ID)
@@ -128,6 +132,7 @@ namespace kdubois1_MVC_Music.Controllers
         }
 
         // GET: Songs/Delete/5
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -150,6 +155,7 @@ namespace kdubois1_MVC_Music.Controllers
         // POST: Songs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var song = await _context.Songs.FindAsync(id);
